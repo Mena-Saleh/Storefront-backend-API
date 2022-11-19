@@ -10,7 +10,10 @@ const store = new UserStore();
 const create = async (req:Request, res:Response) => {
 
     const user: User = {
-        username: req.query.username as unknown as string,
+        firstname: req.query.username as unknown as string,
+        lastname: req.query.lastname as unknown as string,
+        role: 'user',
+        email: req.query.email as unknown as string,
         password: req.query.password as unknown as string
     }
     try {

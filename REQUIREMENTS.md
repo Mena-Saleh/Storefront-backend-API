@@ -10,6 +10,8 @@ These are the notes from a meeting with the frontend developer that describe wha
 - Create [token required] -admin only
 - delete [token required] -admin only
 - update [token required] -admin only
+
+
 - [OPTIONAL] Top 5 most popular products 
 
 
@@ -29,6 +31,9 @@ These are the notes from a meeting with the frontend developer that describe wha
 - Change order status(args: order id) [token required] -change ongoing to completed and vice versa
 - Add product to an order (args: order id, product name)
 - Remove product from an order (args: order id, product name)
+
+#### Business logic
+
 
 - Current Orders by user (args: user id)[token required] (status is active) (display order products too with their name)
 - [OPTIONAL] Completed Orders by user (args: user id)[token required] (status is completed) (display order products too with their name)

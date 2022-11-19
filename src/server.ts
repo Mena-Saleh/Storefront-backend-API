@@ -14,7 +14,7 @@ const corsOptions = {
 }
 
 
-//tell express to use the cors library and pass in the cors options we configured:
+//Let express use the cors library and pass in the cors options configured previously.
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
@@ -22,15 +22,15 @@ app.listen(port, () => {
   console.log('server is listening on port ' + port);
 });
 
-//passing cors as a middle ware in our routes
+//Home route with cors enabled
 app.get('/', cors(corsOptions) ,(req: Request, res: Response) => {
-    res.send("hello people of the server!");
+    res.send("This is the home page of the API :)");
 })
 
 
 
 
-//To use routes in my handler, all I need to do is call my routes function and pass my app instance and the routes will be mapped to their model functions
+//Passing RESTful route handlers to the express app instance:
 products_routes(app);
 users_routes(app);
 

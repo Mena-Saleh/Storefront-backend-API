@@ -1,6 +1,6 @@
 import express, {Request, Response} from 'express'
 import { ProductStore, Product } from '../models/products'
-import verifyAuthToken from '../utilities/verifyAuthToken';
+import {verifyAuthToken, verifyAdminToken} from '../middleware/Authorization';
 
 const store = new ProductStore();
 
@@ -60,7 +60,7 @@ const products_routes = (app: express.Application) => {
 
     app.get('/products', index)
     app.get('/products/:id', show)
-    app.post('/products', verifyAuthToken,create) //verification with jwt as a middleware
+    app.post('/products', verifyAuthToken ,create) //verification with jwt as a middleware
     app.delete('/products', del)
 
 
