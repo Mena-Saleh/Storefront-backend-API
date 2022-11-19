@@ -42,9 +42,9 @@ export default client;
 
 
 
-// client.connect();
+client.connect();
 
-// const query = 'select * from customers';
+// const query = 'select * from users';
 
 // client.query(query, (err, res) =>{
 

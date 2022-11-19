@@ -7,28 +7,42 @@ These are the notes from a meeting with the frontend developer that describe wha
 #### Products
 - Index 
 - Show
-- Create [token required]
+- Create [token required] -admin only
+- delete [token required] -admin only
+- update [token required] -admin only
 - [OPTIONAL] Top 5 most popular products 
-- [OPTIONAL] Products by category (args: product category)
+
 
 #### Users
-- Index [token required]
-- Show [token required]
-- Create N[token required]
+- Index [token required] -admin only
+- Show [token required] - admin only
+- [OPTIONAL] delete [token required] - admin only
+- [OPTIONAL] update[token required] - admin only
+- Create (returns token) -any user
+- Login (returns token) -any user
+
+
 
 #### Orders
-- Current Order by user (args: user id)[token required]
-- [OPTIONAL] Completed Orders by user (args: user id)[token required]
+- Make a new order(args: user id) [token required] -creates order for logged in user with status 'ongoing'
+- delete order (args: order id)  [token required]
+- Change order status(args: order id) [token required] -change ongoing to completed and vice versa
+- Add product to an order (args: order id, product name)
+- Remove product from an order (args: order id, product name)
+
+- Current Orders by user (args: user id)[token required] (status is active) (display order products too with their name)
+- [OPTIONAL] Completed Orders by user (args: user id)[token required] (status is completed) (display order products too with their name)
+
 
 ## Data Shapes
 #### Product
--  id
+- id
 - name
 - price
-- [OPTIONAL] category
 
 #### User
 - id
+- email
 - firstName
 - lastName
 - password

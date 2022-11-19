@@ -1,7 +1,7 @@
-import {Products} from '../models/products' //import the model
+import {ProductStore} from '../models/products' //import the model
 
 
-const products = new Products(); //Create an object of my model
+const products = new ProductStore(); //Create an object of my model
 
 describe('products model testing', () =>
 {
