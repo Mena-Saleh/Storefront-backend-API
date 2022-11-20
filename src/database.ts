@@ -3,6 +3,8 @@ import { Pool } from 'pg'
 
 dotenv.config()
 
+
+//get environment variables
 const {
     POSTGRES_HOST ,
     POSTGRES_DB,
@@ -14,12 +16,13 @@ const {
 
 
 
-//pool is basically a connection to a database
 
+//pool to manage database connection
 let client:Pool;
 
 console.log(ENV)
 
+//configure db connection depending on ENV value
 if(ENV == 'test') {
   client = new Pool({
     host: POSTGRES_HOST,
@@ -39,24 +42,3 @@ else {
 }
 
 export default client;
-
-
-
-client.connect();
-
-// const query = 'select * from users';
-
-// client.query(query, (err, res) =>{
-
-//     if(err)
-//     {
-//         console.log(err.message);
-//     }
-//     else{
-
-//         console.log(res.rows);
-//     }
-
-//     client.end;
-// })
-

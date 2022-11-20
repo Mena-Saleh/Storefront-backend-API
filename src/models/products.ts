@@ -1,6 +1,7 @@
 import client from '../database'
 
 
+//TYPES
 
 export type Product ={
 
@@ -11,9 +12,11 @@ export type Product ={
 }
 
 
+//METHODS
+
 export class ProductStore
 {
-    //index method to read all products and return a promise of product array
+    //get all products
     async index(): Promise<Product[]> {
 
        try {
@@ -27,7 +30,7 @@ export class ProductStore
        }
     }
 
-
+    //get specific product by id
     async show(id: string): Promise<Product>{
 
         try
@@ -44,7 +47,7 @@ export class ProductStore
         }
     }
 
-
+    //create new product
     async create(p:Product): Promise<Product>{
         try {
             const conn =  await client.connect(); //open connection to db
@@ -58,7 +61,7 @@ export class ProductStore
 
     }
 
-
+    //delete a product by id
     async delete(id: string): Promise<Product> 
     { 
         try {
@@ -73,7 +76,7 @@ export class ProductStore
        }
     }
 
-
+    //update a product by id and new product info
     async update(id: string, p: Product): Promise<Product>{
 
         try

@@ -4,42 +4,41 @@ The company stakeholders want to create an online storefront to showcase their g
 These are the notes from a meeting with the frontend developer that describe what endpoints the API needs to supply, as well as data shapes the frontend and backend have agreed meet the requirements of the application. 
 
 ## API Endpoints
+
 #### Products
-- Index 
-- Show
-- Create [token required] -admin only
-- delete [token required] -admin only
-- update [token required] -admin only
-
-
-- [OPTIONAL] Top 5 most popular products 
+- Index:    "/products"             [GET]
+- Show:     "/products/:id"         [GET]       (params: id)
+- Create:   "/products"             [POST]      (req_body: name, price)                 -admin token required
+- delete    "/products/:id"         [DELETE]    (params: id)                            -admin token required
+- update    "/products/:id"         [PATCH]     (params: id - req_body: name, price)    -admin token required
 
 
 #### Users
-- Index [token required] -admin only
-- Show [token required] - admin only
-- [OPTIONAL] delete [token required] - admin only
-- [OPTIONAL] update[token required] - admin only
-- Create (returns token) -any user
-- Login (returns token) -any user
+- Index:    "/users"                [GET]                                               -admin token required
+- Show:     "/users/:id"            [GET]       (params: id)                            -admin token required
+- delete    "/users/:id"            [DELETE]    (params: id)                            -owner token required
+- update    "/users/:id"            [PATCH]     (params: id - req_body: firstname, lastname, email , password) -downer token required
+- Create    "/users"                [POST]      (req_body: firstname, lastname, email , password)              -returns new user token
+- Login     "/users/authenticate"   [POST]      (req_body: email, password)                                    -returns user token
 
 
 
 #### Orders
-- Make a new order(args: user id) [token required] -creates order for logged in user with status 'ongoing'
-- delete order (args: order id)  [token required]
-- Change order status(args: order id) [token required] -change ongoing to completed and vice versa
-- Add product to an order (args: order id, product name)
-- Remove product from an order (args: order id, product name)
 
-#### Business logic
+- id passed in params is user_id not order_id, it is often used for authorization in these endpoints:
 
+- getOrders:   "orders/:id"            [GET]       (params: id, req_body: status)          -owner token required
+- orderPrice:  "orders/:id/totalPrice" [GET]       (params: id, req_body: order_id)        -owner token required
+- orderItems:  "orders/:id/products"   [GET]       (params: id, req_body: order_id)        -owner token required
+- CreateOrder: "orders/:id"            [POST]      (params: id)                            -owner token required
+- deleteOrder: "orders/:id"            [DELETE]    (params: id, req_body: order_id)        -owner token required
+- setStatus:   "orders/:id/setstatus"  [PATCH]     (params: id, req_body: order_id, status)                 -owner token required
+- addProduct:  "orders/:id/addProduct" [POST]      (params: id, req_body: order_id, product_id, quantity)   -owner token required
 
-- Current Orders by user (args: user id)[token required] (status is active) (display order products too with their name)
-- [OPTIONAL] Completed Orders by user (args: user id)[token required] (status is completed) (display order products too with their name)
 
 
 ## Data Shapes
+
 #### Product
 - id
 - name
@@ -51,10 +50,11 @@ These are the notes from a meeting with the frontend developer that describe wha
 - firstName
 - lastName
 - password
+- role
 
 #### Orders
 - id
-- id of each product in the order
+- user_id
 - quantity of each product in the order
 - user_id
 - status of order (active or complete)

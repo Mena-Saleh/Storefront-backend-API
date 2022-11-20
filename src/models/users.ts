@@ -3,7 +3,8 @@ import bcrypt from 'bcrypt'
 import 'process';
 
 
-//User data type
+//TYPES
+
 export type User ={
 
     id?: number;
@@ -15,26 +16,28 @@ export type User ={
 
 }
 
-
+//get pepper from env for hashing
 const pepper: string = process.env.BCRYPT_PEPPER as unknown as string;
 
+
+//Methods
 export class UserStore
 {
-    
+    //get all users
     async index(): Promise<User[]> {
 
         try {
-         const conn =  await client.connect(); //open connection to db
-         const sql = 'SELECT * FROM users ORDER BY id'; //sql query
-         const result = await conn.query(sql); //gets the result of the query which is either rows or error
-         conn.release(); //close connection to db
+         const conn =  await client.connect();
+         const sql = 'SELECT * FROM users ORDER BY id';
+         const result = await conn.query(sql);
+         conn.release();
          return result.rows;
         } catch (error) {
          throw new Error(`Can't get users ${error}`);
         }
      }
  
- 
+     //get a specific user by id
      async show(id: string): Promise<User>{
  
          try
@@ -52,17 +55,17 @@ export class UserStore
      }
  
 
-
+     //create a new user
     async create(u: User): Promise<User>{
-        //users crated have a role of user by default (admin role can only be set from inside database)
+        
         try {
-            const conn =  await client.connect(); //open connection to db
-            const sql = `insert into users (email, firstname, lastname , role, password) values ($1, $2, $3, $4, $5) RETURNING *`; //sql query
+            const conn =  await client.connect();
+            const sql = `insert into users (email, firstname, lastname , role, password) values ($1, $2, $3, $4, $5) RETURNING *`;
 
             //Password hashing:
             const hash: string = bcrypt.hashSync(u.password + pepper, parseInt(process.env.SALT_ROUNDS as string))
-            const result = await conn.query(sql, [u.email ,u.firstname, u.lastname, u.role , hash]); //gets the result of the query which is either rows or error
-            conn.release(); //close connection to db
+            const result = await conn.query(sql, [u.email ,u.firstname, u.lastname, u.role , hash]);
+            conn.release();
             return result.rows[0];
            } catch (error) {
             throw new Error(`Can't create user ${error}`);
@@ -70,6 +73,7 @@ export class UserStore
 
     }
 
+    //delete a user by id
     async delete(id: string): Promise<User> 
     { 
         try {
@@ -84,7 +88,7 @@ export class UserStore
        }
     }
 
-
+    //update user by id and new user information.
     async update(id: string, u: User): Promise<User>{
 
         try
@@ -104,19 +108,19 @@ export class UserStore
     }
 
 
-
+    //authenticate user email and password
     async authenticate(email: string, password: string): Promise<User|null>{
         try {
-            const conn =  await client.connect(); //open connection to db
-            const sql = `select * from users where email = $1`; //sql query
+            const conn =  await client.connect(); 
+            const sql = `select * from users where email = $1`; 
 
-            const result = await conn.query(sql, [email]); //gets the result of the query which is either rows or error
-            conn.release(); //close connection to db
+            const result = await conn.query(sql, [email]); 
+            conn.release(); 
             
-            if(result.rows.length != 0) //user exists
+            if(result.rows.length != 0) 
             {
                 const user = result.rows[0];
-                if(bcrypt.compareSync(password + pepper, user.password)) //comparing entered password with hashed one
+                if(bcrypt.compareSync(password + pepper, user.password))
                 {
                     return user;
                 }
@@ -128,8 +132,4 @@ export class UserStore
     }
 
 
-
-
-
-    
 }

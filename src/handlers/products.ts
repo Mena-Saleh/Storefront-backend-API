@@ -1,67 +1,95 @@
 import express, {Request, Response} from 'express'
 import { ProductStore, Product } from '../models/products'
-import {verifyAuthToken, verifyAdminToken} from '../middleware/Authorization';
+import {verifyAdminToken} from '../middleware/Authorization';
 
 const store = new ProductStore();
 
 
-//RESTful route handler (REST means it follows a specific architicture for an API (having routes as index, show, delete, update and create):
-const index = async (req: Request, res: Response) => {
-    const products = await store.index();
-    res.json(products);
-}
-
-
-const show = async (req: Request, res: Response) =>
-{
-    const product = await store.show(req.query.id as unknown as string)
-    res.json(product);
-}
-
-const del = async (req: Request, res: Response) =>{
-    const deleted = await store.delete(req.query.id as unknown as string)
-    res.json(deleted);
-}
-
-const create = async (req:Request, res:Response) => {
-
-    const toCreate: Product = {
-        name: req.query.name as unknown as string,
-        price: req.query.price as unknown as number
-    }
-
-
-    //Better to do this as a middleware:
-    //Authorization: to check if the user is authorized to do an action, here I am checking if the user has a valid token (logged in) before allowing them to create a new product
-    // try {
-    //     //token is passed from request header not url query params or req.body because it is more secure this way, also secret key has to be passed to check the authenticity of the token
-    //     const authorizationHeader = req.headers.authorization
-    //     const token = (authorizationHeader as unknown as string).split(' ')[1]
-    //     jwt.verify(token, process.env.TOKEN_SECRET as unknown as string)
-    // } catch (error) {
-    //     //token is wrong, return an error and stop function execution by returning
-    //     res.status(401);
-    //     res.json(`invalid token ${error}`);
-    //     return; 
-    // }
+// get all products
+const index = async(req:Request, res:Response) : Promise<void> =>{
 
     try {
-        const created = await store.create(toCreate);
-        res.json(created);
+        const products: Product[] = await store.index();
+        res.json(products);
     } catch (error) {
-        res.send(error);
+        res.status(400);
+        res.json(error as string);
+    }
+}
+
+//get specific product by id
+const show = async(req:Request, res:Response) : Promise<void> =>{
+
+    const id: string = req.params.id;
+    try {
+        const product: Product = await store.show(id);
+        res.json(product);
+    } catch (error) {
+        res.status(400);
+        res.json(error as string);
+    }
+}
+
+//create new product, takes name and price from body
+const create = async (req:Request, res:Response) : Promise<void> => {
+
+    const product: Product = {
+        name: req.body.name as unknown as string,
+        price: req.body.price as unknown as number
+    }
+
+    try {
+        const newProduct: Product = await store.create(product);
+        res.json(newProduct);
+    } catch (error) {
+        res.status(400);
+        res.json(error as string);
     }
   
 }
 
+//update a product by id, takes new product details (name, price) from body
+const update = async (req: Request, res: Response) : Promise<void> =>{
+    const id: string = req.params.id;
 
-//Function that takes an instance of express app and handles different route pathes according to handlers
+    const product: Product = {
+        name: req.body.name,
+        price: req.body.price
+    }
+
+    try {
+        const updatedProduct: Product = await store.update(id, product);
+        res.json(updatedProduct);
+    } catch (error) {
+        res.status(400);
+        res.json(error as string);
+    }
+}
+
+//delete a product by id
+const destroy = async (req: Request, res: Response) : Promise<void> =>{
+    const id: string = req.params.id;
+
+    try {
+        const deletedProduct: Product = await store.delete(id);
+        res.json(deletedProduct);
+    } catch (error) {
+        res.status(400);
+        res.json(error as string);
+    }
+}
+
+
+//RESTful routes for products management
 const products_routes = (app: express.Application) => {
 
-    app.get('/products', index)
-    app.get('/products/:id', show)
-    app.post('/products', verifyAuthToken ,create) //verification with jwt as a middleware
-    app.delete('/products', del)
+    app.get('/products', index) //get all products
+    app.get('/products/:id', show) //get a speicifc product by id
+
+    //only admin can manage products, therefore a token with a user role as admin is required:
+    app.post('/products', verifyAdminToken ,create)  //create new product 
+    app.patch('/products/:id', verifyAdminToken, update) //update a product
+    app.delete('/products/:id', verifyAdminToken ,destroy) //delete a product
 
 
 }

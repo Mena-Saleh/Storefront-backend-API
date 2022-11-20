@@ -8,10 +8,11 @@ import {verifyOwnIDToken , verifyAdminToken} from '../middleware/Authorization';
 const store = new UserStore();
 
 
+//get all users
 const index = async(req:Request, res:Response) : Promise<void> =>{
 
     try {
-        const users = await store.index();
+        const users: User[] = await store.index();
         res.json(users);
     } catch (error) {
         res.status(400);
@@ -19,11 +20,12 @@ const index = async(req:Request, res:Response) : Promise<void> =>{
     }
 }
 
+//get a specific user by id
 const show = async(req:Request, res:Response) : Promise<void> =>{
 
     const id: string = req.params.id;
     try {
-        const user = await store.show(id);
+        const user: User = await store.show(id);
         res.json(user);
     } catch (error) {
         res.status(400);
@@ -32,25 +34,24 @@ const show = async(req:Request, res:Response) : Promise<void> =>{
 }
 
 
-//RESTful route handler (REST means it follows a specific architicture for an API (having routes as index, show, delete, update and create):
+//create a new user
 const create = async (req:Request, res:Response) : Promise<void> => {
 
-    //get user from request body:
     const user: User = {
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         email: req.body.email,
         password: req.body.password,
-        role: 'user'
+        role: 'user' //role is user by default and can only be changed to admin from db
     }
     try {
         const newUser:User =  await store.create(user);
-        //creating an object with jwt sign method, which takes an object to associate token info with, and a secret string to sign the token with
+        
+        //signing token for the new user, the token has the user information in the payload
         const token : string = jwt.sign({id:newUser.id, username: newUser.firstname + ' ' + newUser.lastname, email: newUser.email, role: user.role}, process.env.TOKEN_SECRET as unknown as Secret);
         res.status(201);
         res.json(token);
     } catch (error) {
-        // notify user of bad request
         res.status(400);
         res.json(error as string + user);
     }
@@ -58,8 +59,8 @@ const create = async (req:Request, res:Response) : Promise<void> => {
 }
 
 
-
-const update = async (req: Request, res: Response) =>{
+//update a user by id and new user information
+const update = async (req: Request, res: Response) : Promise<void> =>{
     const id: string = req.params.id;
 
     const user: User = {
@@ -67,11 +68,11 @@ const update = async (req: Request, res: Response) =>{
         lastname: req.body.lastname,
         email: req.body.email,
         password: req.body.password,
-        role: 'user'
+        role: 'user' //role can't be changed from here, has to be from db
     }
 
     try {
-        const updatedUser = await store.update(id, user);
+        const updatedUser: User = await store.update(id, user);
         res.json(updatedUser);
     } catch (error) {
         res.status(400);
@@ -80,12 +81,12 @@ const update = async (req: Request, res: Response) =>{
 }
 
 
-const destroy = async (req: Request, res: Response) =>{
+//delete a user by id
+const destroy = async (req: Request, res: Response) : Promise<void>=>{
     const id: string = req.params.id;
 
-    console.log("here");
     try {
-        const deletedUser = await store.delete(id);
+        const deletedUser:User = await store.delete(id);
         res.json(deletedUser);
     } catch (error) {
         res.status(400);
@@ -94,8 +95,8 @@ const destroy = async (req: Request, res: Response) =>{
 }
 
 
-
-const authenticate = async (req: Request, res: Response) =>
+//authenticate user by email and password
+const authenticate = async (req: Request, res: Response) : Promise<void> =>
 {
     
     const email: string = req.body.email;
@@ -103,10 +104,11 @@ const authenticate = async (req: Request, res: Response) =>
 
     try {
         const authenticated = await store.authenticate(email, password);
-        //sending a token with the email as data in it.
-        if(authenticated != null)
+
+        if(authenticated != null)// user exists
         {
-            const token = jwt.sign({id: authenticated.id ,username: authenticated.firstname + ' ' + authenticated.lastname, email: authenticated.email, role: authenticated.role}, process.env.TOKEN_SECRET as unknown as Secret);
+            //sign new token for the user
+            const token: string = jwt.sign({id: authenticated.id ,username: authenticated.firstname + ' ' + authenticated.lastname, email: authenticated.email, role: authenticated.role}, process.env.TOKEN_SECRET as unknown as Secret);
             res.status(302);
             res.json(token);
         }
@@ -124,15 +126,19 @@ const authenticate = async (req: Request, res: Response) =>
 }
 
 
-//Function that takes an instance of express app and handles different route pathes according to handlers
+//RESTful routes for users management
 const users_routes = (app: express.Application) => {
+    
+    //show and index require admin privellege, because only adming can see user details.
+    app.get('/users',verifyAdminToken , index); //get all users
+    app.get('/users/:id', verifyAdminToken, show); //get a specific user
 
-    app.get('/users',verifyAdminToken , index); //show all users, requires admin token
-    app.get('/users/:id', verifyAdminToken, show); //show a specific user, requires user token
-    app.post('/users',create); //create a user (with role as 'user', the only way to create admin is through db) and returns user token
+    app.post('/users',create); //create a new user
     app.post('/users/authenticate', authenticate); //authenticate user by email and password
-    app.patch('/users/update/:id', verifyOwnIDToken,update) //update own account, requires token with id matching the one in params
-    app.delete('/users/delete/:id', verifyOwnIDToken , destroy) //delete own account, requires token with id matching the one in params
+
+    //update and delete require the id in params to be the same one to be updated/deleted, because users can only manage their own data.
+    app.patch('/users/:id', verifyOwnIDToken, update) //update account by id and new account information
+    app.delete('/users/:id', verifyOwnIDToken , destroy) //delete account by id
 }
 
 

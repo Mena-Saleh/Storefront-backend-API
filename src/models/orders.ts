@@ -2,7 +2,7 @@ import { QueryResult } from 'pg';
 import client from '../database'
 
 
-
+//TYPES
 
 export type Order={
 
@@ -26,22 +26,28 @@ export type OrderEntry = {
     product_quantity: number;
 }
 
+export type OrderPrice = {
+    total_price: number;
+}
+
+
+//METHODS
 
 export class OrderStore
 {
-
-    async getOrderTotalPrice(id: string): Promise<string> //get the total price of an order by order id;
+    //get the total price of an order by order id
+    async getOrderTotalPrice(id: string): Promise<OrderPrice> 
     {
 
         try {
-            const conn =  await client.connect(); //open connection to db
-            const sql = `SELECT SUM(products.price * orders_details.quantity)
+            const conn =  await client.connect()
+            const sql = `SELECT SUM(products.price * orders_details.quantity) as "total_price"
             FROM orders INNER JOIN orders_details INNER JOIN products 
             ON  orders_details.product_id = products.id
             ON  orders.id = orders_details.order_id
             WHERE orders.id = $1`; //sql query
-            const result = await conn.query(sql, [id]); //gets the result of the query which is either rows or error
-            conn.release(); //close connection to db
+            const result = await conn.query(sql, [id]); 
+            conn.release();
             return result.rows[0];
            } catch (error) {
             throw new Error(`Can't get products ${error}`);
@@ -49,19 +55,19 @@ export class OrderStore
 
     }
 
-
-    async getOrderProducts(id: string): Promise<OrderEntry[]> //get the list of items in an order by order id (whether active or not):
+    //get the list of items in an order by order id (whether active or not)
+    async getOrderProducts(id: string): Promise<OrderEntry[]> 
     {
 
         try {
-            const conn =  await client.connect(); //open connection to db
+            const conn =  await client.connect();
             const sql = `SELECT products.name, products.price, orders_details.quantity
             FROM orders INNER JOIN orders_details INNER JOIN products 
             ON  orders_details.product_id = products.id
             ON  orders.id = orders_details.order_id
             WHERE orders.id = $1`; //sql query
-            const result : QueryResult<OrderEntry> = await conn.query(sql, [id]); //gets the result of the query which is either rows or error
-            conn.release(); //close connection to db
+            const result : QueryResult<OrderEntry> = await conn.query(sql, [id]);
+            conn.release();
             return result.rows;
            } catch (error) {
             throw new Error(`Can't get products ${error}`);
@@ -70,28 +76,26 @@ export class OrderStore
     }
 
     //get all orders (active or complete)
-    async getOrders(id: string, status: string): Promise<Order[]> {
+    async getOrders(user_id: string, status: string): Promise<Order[]> {
 
         try {
-         const conn =  await client.connect(); //open connection to db
-         const sql = `SELECT * FROM orders where status = $1 and user_id = $2`; //sql query
-         const result = await conn.query(sql, [status, id]); //gets the result of the query which is either rows or error
-         conn.release(); //close connection to db
+         const conn =  await client.connect();
+         const sql = `SELECT * FROM orders where status = $1 and user_id = $2`; 
+         const result = await conn.query(sql, [status, user_id]);
+         conn.release();
          return result.rows;
         } catch (error) {
          throw new Error(`Can't get orders ${error}`);
         }
      }
 
-    //get all completed orders
-   
 
     //adds a product to as specific order
     async addProduct(op: OrderProduct): Promise<OrderProduct>{
         try {
-            const conn =  await client.connect(); //open connection to db
-            const sqlOrder = `SELECT * FROM orders WHERE id = $1`; //sql query
-            const resultOrder = await conn.query(sqlOrder, [op.order_id]); //gets the result of the query which is either rows or error
+            const conn =  await client.connect();
+            const sqlOrder = `SELECT * FROM orders WHERE id = $1`;
+            const resultOrder = await conn.query(sqlOrder, [op.order_id]);
             const order = resultOrder.rows[0];
             if (order.status == 'complete')
             {
@@ -99,8 +103,8 @@ export class OrderStore
             }
 
             const sqlAddProduct = `INSERT INTO orders_details (order_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *`
-            const resultAddProduct = await conn.query(sqlAddProduct, [op.order_id, op.product_id, op.quantity]); //gets the result of the query which is either rows or error
-            conn.release(); //close connection to db
+            const resultAddProduct = await conn.query(sqlAddProduct, [op.order_id, op.product_id, op.quantity]);
+            conn.release();
             return resultAddProduct.rows[0];
            } catch (error) {
             throw new Error(`Can't add product to order ${error}`);
@@ -112,10 +116,10 @@ export class OrderStore
     //create order
     async create(o: Order): Promise<Order>{
         try {
-            const conn =  await client.connect(); //open connection to db
-            const sql = `INSERT INTO orders (user_id, status) VALUES ($1, $2) RETURNING *`; //sql query
-            const result = await conn.query(sql, [o.user_id, o.status]); //gets the result of the query which is either rows or error
-            conn.release(); //close connection to db
+            const conn =  await client.connect();
+            const sql = `INSERT INTO orders (user_id, status) VALUES ($1, $2) RETURNING *`;
+            const result = await conn.query(sql, [o.user_id, o.status]);
+            conn.release();
             return result.rows[0];
            } catch (error) {
             throw new Error(`Can't add product ${error}`);
