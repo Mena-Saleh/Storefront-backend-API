@@ -29,13 +29,14 @@ This project presents a simple storefront backend API that features users, order
 
 - Initialize database:
 
-    - Open PG shell and connect using the created super user.
+    - Open PG shell and connect to postgres using the created super user with port 5432.
     - Create the databases required for this project using the commands:
 
         create database mena_store;
         create database mena_store_test;
 
     - Run migrations using the command: db-migrate up in CMD in the project root directory after installing db-migrate using NPM
+    - The db is initialized with some initial data for testing, tests should be run before modifying and db contents.
 
 - Set up environmental variables
 
@@ -46,11 +47,12 @@ This project presents a simple storefront backend API that features users, order
         POSTGRES_DB = mena_store
         POSTGRES_USER = mena_store_admin
         POSTGRES_PASSWORD = 123456
-        POSTGRES_DB_TEST = mena_store_test
-        ENV = dev
+        POSTGRES_TEST_DB = mena_store_test
+        ENV = test
         BCRYPT_PEPPER = DJSADDJ*!*!CMKcjjs76662$@%^!*896986ffva!*2818291
         SALT_ROUNDS = 10
         TOKEN_SECRET = 3SDOJ193JKZXC@31OJSD9&*%kdmc87891278JKXCK&^*^*&*^*$&&$*!@@!*!*&%*!*&&NCSNI9898DDS
+
 
 - The API runs on port 3000, for details on usage check section 3. Usage, Endpoints and Testing.
 

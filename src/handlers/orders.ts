@@ -40,9 +40,10 @@ const create = async (req:Request, res:Response) : Promise<void> => {
 //delete an order by order_id
 const destroy = async (req: Request, res: Response): Promise<void> =>{
     const order_id: string = req.body.order_id;
+    const user_id: string = req.params.id;
 
     try {
-        const deletedOrder: Order = await store.delete(order_id);
+        const deletedOrder: Order = await store.delete(order_id, user_id);
         res.json(deletedOrder);
     } catch (error) {
         res.status(400);
@@ -54,9 +55,10 @@ const destroy = async (req: Request, res: Response): Promise<void> =>{
 const setStatus = async (req: Request, res: Response): Promise<void> =>{
     const order_id: string = req.body.order_id;
     const status: string = req.body.status;
+    const user_id: string = req.params.id;
 
     try {
-        const updatedOrder: Order = await store.setStatus(order_id, status);
+        const updatedOrder: Order = await store.setStatus(order_id, user_id , status);
         res.json(updatedOrder);
     } catch (error) {
         res.status(400);
@@ -71,8 +73,9 @@ const addProduct = async (req: Request, res: Response): Promise<void> =>{
         product_id: req.body.product_id,
         quantity: req.body.quantity
     }
+    const user_id: string = req.params.id;
     try {
-        const addedProduct : OrderProduct = await store.addProduct(orderProduct);
+        const addedProduct : OrderProduct = await store.addProduct(user_id, orderProduct);
         res.json(addedProduct);
     } catch (error) {
         res.status(400);
@@ -84,9 +87,10 @@ const addProduct = async (req: Request, res: Response): Promise<void> =>{
 //get total price for an order, takes order_id from the body
 const getOrderTotalPrice = async (req: Request, res: Response): Promise<void> =>{
     const order_id: string = req.body.order_id;
+    const user_id: string = req.params.id;
 
     try {
-        const orderPrice : OrderPrice = await store.getOrderTotalPrice(order_id);
+        const orderPrice : OrderPrice = await store.getOrderTotalPrice(order_id, user_id);
         res.json(orderPrice);
     } catch (error) {
         res.status(400);
@@ -98,9 +102,10 @@ const getOrderTotalPrice = async (req: Request, res: Response): Promise<void> =>
 //get a list of products that are in an order
 const getOrderProducts = async (req: Request, res: Response): Promise<void> =>{
     const order_id: string = req.body.order_id;
+    const user_id: string = req.params.id;
 
     try {
-        const orderProducts : OrderEntry[] = await store.getOrderProducts(order_id);
+        const orderProducts : OrderEntry[] = await store.getOrderProducts(order_id, user_id);
         res.json(orderProducts);
     } catch (error) {
         res.status(400);
@@ -116,7 +121,8 @@ const getOrderProducts = async (req: Request, res: Response): Promise<void> =>{
 const orders_routes = (app: express.Application) : void => {
     
     //the id passed through params is user_id not order_id, order_is passed in the body.
-    //the user_id is used in the middleware (verifyOwnIDToken) to authorize users to manage their own data only.
+    //the user_id is used in the middleware (verifyOwnIDToken) to authorize users to manage their own data only, 
+    //user_id is also used in the model queries, so data integrity is maintained.
 
 
     app.get("/orders/:id", verifyOwnIDToken, getOrders); //get all products for a user

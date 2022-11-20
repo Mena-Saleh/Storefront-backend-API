@@ -5,14 +5,12 @@ dotenv.config()
 
 
 //get environment variables
-const {
-    POSTGRES_HOST ,
-    POSTGRES_DB,
-    POSTGRES_USER,
-    POSTGRES_PASSWORD,
-    POSTGRES_TEST_DB,
-    ENV,
-} =  process.env;
+const POSTGRES_HOST : string|undefined = process.env.POSTGRES_HOST 
+const POSTGRES_USER : string|undefined = process.env.POSTGRES_USER
+const POSTGRES_PASSWORD : string|undefined = process.env.POSTGRES_PASSWORD
+const POSTGRES_TEST_DB : string|undefined = process.env.POSTGRES_TEST_DB 
+const ENV :string|undefined = process.env.ENV;
+const POSTGRES_DB : string|undefined = process.env.POSTGRES_DB
 
 
 
@@ -29,7 +27,8 @@ if(ENV == 'test') {
     database: POSTGRES_TEST_DB,
     user: POSTGRES_USER,
     password: POSTGRES_PASSWORD,
-  })
+  }
+  )
 }
 
 else {
@@ -40,5 +39,6 @@ else {
     password: POSTGRES_PASSWORD,
   })
 }
+
 
 export default client;

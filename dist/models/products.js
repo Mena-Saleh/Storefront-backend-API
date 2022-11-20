@@ -39,13 +39,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Products = void 0;
+exports.ProductStore = void 0;
 var database_1 = __importDefault(require("../database"));
-var Products = /** @class */ (function () {
-    function Products() {
+//METHODS
+var ProductStore = /** @class */ (function () {
+    function ProductStore() {
     }
-    //index method to read all products and return a promise of product array
-    Products.prototype.index = function () {
+    //get all products
+    ProductStore.prototype.index = function () {
         return __awaiter(this, void 0, void 0, function () {
             var conn, sql, result, error_1;
             return __generator(this, function (_a) {
@@ -55,7 +56,7 @@ var Products = /** @class */ (function () {
                         return [4 /*yield*/, database_1.default.connect()];
                     case 1:
                         conn = _a.sent();
-                        sql = 'select * from products';
+                        sql = 'SELECT * FROM products';
                         return [4 /*yield*/, conn.query(sql)];
                     case 2:
                         result = _a.sent();
@@ -69,7 +70,8 @@ var Products = /** @class */ (function () {
             });
         });
     };
-    Products.prototype.show = function (id) {
+    //get specific product by id
+    ProductStore.prototype.show = function (id) {
         return __awaiter(this, void 0, void 0, function () {
             var conn, sql, result, error_2;
             return __generator(this, function (_a) {
@@ -79,7 +81,7 @@ var Products = /** @class */ (function () {
                         return [4 /*yield*/, database_1.default.connect()];
                     case 1:
                         conn = _a.sent();
-                        sql = "select * from products where id = $1";
+                        sql = "SELECT * FROM products WHERE id = $1";
                         return [4 /*yield*/, conn.query(sql, [id])];
                     case 2:
                         result = _a.sent();
@@ -93,7 +95,8 @@ var Products = /** @class */ (function () {
             });
         });
     };
-    Products.prototype.create = function (p) {
+    //create new product
+    ProductStore.prototype.create = function (p) {
         return __awaiter(this, void 0, void 0, function () {
             var conn, sql, result, error_3;
             return __generator(this, function (_a) {
@@ -103,7 +106,7 @@ var Products = /** @class */ (function () {
                         return [4 /*yield*/, database_1.default.connect()];
                     case 1:
                         conn = _a.sent();
-                        sql = "insert into products (name, price) values ($1, $2) RETURNING *";
+                        sql = "INSERT INTO PRODUCTS (name, price) VALUES ($1, $2) RETURNING *";
                         return [4 /*yield*/, conn.query(sql, [p.name, p.price])];
                     case 2:
                         result = _a.sent();
@@ -117,7 +120,8 @@ var Products = /** @class */ (function () {
             });
         });
     };
-    Products.prototype.delete = function (id) {
+    //delete a product by id
+    ProductStore.prototype.delete = function (id) {
         return __awaiter(this, void 0, void 0, function () {
             var conn, sql, result, error_4;
             return __generator(this, function (_a) {
@@ -127,7 +131,7 @@ var Products = /** @class */ (function () {
                         return [4 /*yield*/, database_1.default.connect()];
                     case 1:
                         conn = _a.sent();
-                        sql = 'DELETE FROM products WHERE id=($1)';
+                        sql = 'DELETE FROM products WHERE id= $1 RETURNING *';
                         return [4 /*yield*/, conn.query(sql, [id])];
                     case 2:
                         result = _a.sent();
@@ -135,12 +139,37 @@ var Products = /** @class */ (function () {
                         return [2 /*return*/, result.rows[0]];
                     case 3:
                         error_4 = _a.sent();
-                        throw new Error("Can't delete ".concat(error_4));
+                        throw new Error("Can't delete product ".concat(error_4));
                     case 4: return [2 /*return*/];
                 }
             });
         });
     };
-    return Products;
+    //update a product by id and new product info
+    ProductStore.prototype.update = function (id, p) {
+        return __awaiter(this, void 0, void 0, function () {
+            var conn, sql, result, error_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, database_1.default.connect()];
+                    case 1:
+                        conn = _a.sent();
+                        sql = "UPDATE products SET NAME = $1, PRICE = $2 WHERE ID = $3 RETURNING *";
+                        return [4 /*yield*/, conn.query(sql, [p.name, p.price, id])];
+                    case 2:
+                        result = _a.sent();
+                        conn.release();
+                        return [2 /*return*/, result.rows[0]];
+                    case 3:
+                        error_5 = _a.sent();
+                        throw new Error("Can't update product ".concat(error_5));
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return ProductStore;
 }());
-exports.Products = Products;
+exports.ProductStore = ProductStore;

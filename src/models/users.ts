@@ -126,7 +126,7 @@ export class UserStore
                 }
             }
            } catch (error) {
-            throw new Error(`Can't add product ${error}`);
+            throw new Error(`Can't authenitcate user ${error}`);
            }
            return null;
     }

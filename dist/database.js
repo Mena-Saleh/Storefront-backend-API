@@ -5,12 +5,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var dotenv_1 = __importDefault(require("dotenv"));
 var pg_1 = require("pg");
-require("process");
 dotenv_1.default.config();
-var _a = process.env, POSTGRES_HOST = _a.POSTGRES_HOST, POSTGRES_DB = _a.POSTGRES_DB, POSTGRES_USER = _a.POSTGRES_USER, POSTGRES_PASSWORD = _a.POSTGRES_PASSWORD, POSTGRES_TEST_DB = _a.POSTGRES_TEST_DB, ENV = _a.ENV;
-//pool is basically a connection to a database
+//get environment variables
+var POSTGRES_HOST = process.env.POSTGRES_HOST;
+var POSTGRES_USER = process.env.POSTGRES_USER;
+var POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD;
+var POSTGRES_TEST_DB = process.env.POSTGRES_TEST_DB;
+var ENV = process.env.ENV;
+var POSTGRES_DB = process.env.POSTGRES_DB;
+//pool to manage database connection
 var client;
 console.log(ENV);
+//configure db connection depending on ENV value
 if (ENV == 'test') {
     client = new pg_1.Pool({
         host: POSTGRES_HOST,
@@ -28,15 +34,3 @@ else {
     });
 }
 exports.default = client;
-// client.connect();
-// const query = 'select * from customers';
-// client.query(query, (err, res) =>{
-//     if(err)
-//     {
-//         console.log(err.message);
-//     }
-//     else{
-//         console.log(res.rows);
-//     }
-//     client.end;
-// })
