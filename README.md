@@ -50,7 +50,7 @@ The project features many funtionalities, for instance there is authentication a
         POSTGRES_USER = mena_store_admin
         POSTGRES_PASSWORD = 123456
         POSTGRES_TEST_DB = mena_store_test
-        ENV = test
+        ENV = dev
         BCRYPT_PEPPER = DJSADDJ*!*!CMKcjjs76662$@%^!*896986ffva!*2818291
         SALT_ROUNDS = 10
         TOKEN_SECRET = 3SDOJ193JKZXC@31OJSD9&*%kdmc87891278JKXCK&^*^*&*^*$&&$*!@@!*!*&%*!*&&NCSNI9898DDS
