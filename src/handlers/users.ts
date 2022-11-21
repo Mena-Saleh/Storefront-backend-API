@@ -13,6 +13,7 @@ const index = async(req:Request, res:Response) : Promise<void> =>{
 
     try {
         const users: User[] = await store.index();
+        res.status(302) //found
         res.json(users);
     } catch (error) {
         res.status(400);
@@ -26,6 +27,7 @@ const show = async(req:Request, res:Response) : Promise<void> =>{
     const id: string = req.params.id;
     try {
         const user: User = await store.show(id);
+        res.status(302);
         res.json(user);
     } catch (error) {
         res.status(400);
@@ -46,7 +48,6 @@ const create = async (req:Request, res:Response) : Promise<void> => {
     }
     try {
         const newUser:User =  await store.create(user);
-        
         //signing token for the new user, the token has the user information in the payload
         const token : string = jwt.sign({id:newUser.id, username: newUser.firstname + ' ' + newUser.lastname, email: newUser.email, role: user.role}, process.env.TOKEN_SECRET as unknown as Secret);
         res.status(201);
@@ -73,6 +74,7 @@ const update = async (req: Request, res: Response) : Promise<void> =>{
 
     try {
         const updatedUser: User = await store.update(id, user);
+        res.status(200);
         res.json(updatedUser);
     } catch (error) {
         res.status(400);
@@ -87,6 +89,7 @@ const destroy = async (req: Request, res: Response) : Promise<void>=>{
 
     try {
         const deletedUser:User = await store.delete(id);
+        res.status(200);
         res.json(deletedUser);
     } catch (error) {
         res.status(400);

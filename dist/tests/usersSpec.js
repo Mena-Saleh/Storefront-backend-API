@@ -39,11 +39,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var database_1 = __importDefault(require("../database"));
+var supertest_1 = __importDefault(require("supertest"));
+var server_1 = __importDefault(require("../server"));
 var users_1 = require("../models/users");
-console.log(database_1.default);
 var users = new users_1.UserStore();
-//User model test suite:
+var req = (0, supertest_1.default)(server_1.default);
 describe('users model testing', function () {
     it('should have an index method', function () {
         expect(users.index).toBeDefined();
@@ -169,6 +169,147 @@ describe('users model testing', function () {
                 case 1:
                     result = _a.sent();
                     expect(result).toBeTruthy;
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+});
+describe('endpoints testing for Users handlers', function () {
+    it('index shows all users if admin requested', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, req.get('/users').set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJtZW5hIHNhbGVoIiwiZW1haWwiOiJtZW5hQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTY2ODk4NTEyNH0.PkaWPn983Fe11xSt0XItQC2Qy0MIaZXR76oeo8yxDrE')];
+                case 1:
+                    res = _a.sent();
+                    expect(res.status).toBe(302);
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    it('index is unauthorized if a normal user uses it', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, req.get('/users').set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJtYXJpYSBhbGxlbiIsImVtYWlsIjoibWFyaWFAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2Njg5ODU0OTB9.W-JFX9ydP4MadvAwSLZYmBT1sXAMpdj734XfmaY_mbo')];
+                case 1:
+                    res = _a.sent();
+                    expect(res.status).toBe(401);
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    it('show returns a user that the admin requests', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, req.get('/users').set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJtZW5hIHNhbGVoIiwiZW1haWwiOiJtZW5hQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTY2ODk4NTEyNH0.PkaWPn983Fe11xSt0XItQC2Qy0MIaZXR76oeo8yxDrE')];
+                case 1:
+                    res = _a.sent();
+                    expect(res.status).toBe(302);
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    it('create creates a user and returns a token', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, req.post('/users').send({
+                        firstname: 'joe',
+                        lastname: 'doe',
+                        email: 'joe@gmail.com',
+                        password: '789'
+                    })];
+                case 1:
+                    res = _a.sent();
+                    expect(res.status).toBe(201);
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    it('update updates authorized user and returns new user in JSON', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, req.patch('/users/1').send({
+                        firstname: 'mena',
+                        lastname: 'saleh',
+                        email: 'mena@gmail.com',
+                        password: '123'
+                    })
+                        .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJtZW5hIHNhbGVoIiwiZW1haWwiOiJtZW5hQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTY2ODk4NTEyNH0.PkaWPn983Fe11xSt0XItQC2Qy0MIaZXR76oeo8yxDrE')];
+                case 1:
+                    res = _a.sent();
+                    expect(res.status).toBe(200);
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    it('update requires own user authorization', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, req.patch('/users/1').send({
+                        firstname: 'mena',
+                        lastname: 'saleh',
+                        email: 'mena@gmail.com',
+                        password: '123'
+                    })
+                        .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJtYXJpYSBhbGxlbiIsImVtYWlsIjoibWFyaWFAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2Njg5ODU0OTB9.W-JFX9ydP4MadvAwSLZYmBT1sXAMpdj734XfmaY_mbo')];
+                case 1:
+                    res = _a.sent();
+                    expect(res.status).toBe(401);
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    it('delete requires own user authorization', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, req.delete('/users/2')
+                        .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJtYXJpYSBhbGxlbiIsImVtYWlsIjoibWFyaWFAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2Njg5ODU0OTB9.W-JFX9ydP4MadvAwSLZYmBT1sXAMpdj734XfmaY_mbo')];
+                case 1:
+                    res = _a.sent();
+                    expect(res.status).toBe(401);
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    it('delete deletes own user account', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, req.delete('/users/4')
+                        .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJqb2UgZG9lIiwiZW1haWwiOiJqb2VAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2Njg5ODg3MDN9.NzJ3aepigFvOdNEGuF0kT5qnDgZp13_lEAesNFbkprw')];
+                case 1:
+                    res = _a.sent();
+                    expect(res.status).toBe(200);
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    it('authenticate logs user in and returns token', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, req.post('/users/authenticate').send({ email: 'mena@gmail.com', password: '123' })];
+                case 1:
+                    res = _a.sent();
+                    expect(res.status).toBe(302);
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    it('authenticate returns not found when user enters wrong email or password', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, req.post('/users/authenticate').send({ email: 'mena@gmail.com', password: 'IAmAWrongPassword:D' })];
+                case 1:
+                    res = _a.sent();
+                    expect(res.status).toBe(404);
                     return [2 /*return*/];
             }
         });

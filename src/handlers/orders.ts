@@ -12,6 +12,7 @@ const getOrders = async(req:Request, res:Response) : Promise<void> =>{
     const status: string = req.body.status;
     try {
         const orders : Order[] = await store.getOrders(user_id, status);
+        res.status(302)
         res.json(orders);
     } catch (error) {
         res.status(400);
@@ -28,6 +29,7 @@ const create = async (req:Request, res:Response) : Promise<void> => {
     }
     try {
         const newOrder: Order = await store.create(order);
+        res.status(201);
         res.json(newOrder);
     } catch (error) {
         res.status(400);
@@ -44,6 +46,7 @@ const destroy = async (req: Request, res: Response): Promise<void> =>{
 
     try {
         const deletedOrder: Order = await store.delete(order_id, user_id);
+        res.status(200);
         res.json(deletedOrder);
     } catch (error) {
         res.status(400);
@@ -59,6 +62,7 @@ const setStatus = async (req: Request, res: Response): Promise<void> =>{
 
     try {
         const updatedOrder: Order = await store.setStatus(order_id, user_id , status);
+        res.status(200);
         res.json(updatedOrder);
     } catch (error) {
         res.status(400);
@@ -76,6 +80,7 @@ const addProduct = async (req: Request, res: Response): Promise<void> =>{
     const user_id: string = req.params.id;
     try {
         const addedProduct : OrderProduct = await store.addProduct(user_id, orderProduct);
+        res.status(201);
         res.json(addedProduct);
     } catch (error) {
         res.status(400);
@@ -91,6 +96,7 @@ const getOrderTotalPrice = async (req: Request, res: Response): Promise<void> =>
 
     try {
         const orderPrice : OrderPrice = await store.getOrderTotalPrice(order_id, user_id);
+        res.status(302);
         res.json(orderPrice);
     } catch (error) {
         res.status(400);
@@ -106,6 +112,7 @@ const getOrderProducts = async (req: Request, res: Response): Promise<void> =>{
 
     try {
         const orderProducts : OrderEntry[] = await store.getOrderProducts(order_id, user_id);
+        res.status(302)
         res.json(orderProducts);
     } catch (error) {
         res.status(400);
@@ -125,7 +132,7 @@ const orders_routes = (app: express.Application) : void => {
     //user_id is also used in the model queries, so data integrity is maintained.
 
 
-    app.get("/orders/:id", verifyOwnIDToken, getOrders); //get all products for a user
+    app.get("/orders/:id", verifyOwnIDToken, getOrders); //get all orders for a user
     app.get("/orders/:id/totalPrice", verifyOwnIDToken, getOrderTotalPrice); //get total price of specific order for a user
     app.get("/orders/:id/products", verifyOwnIDToken, getOrderProducts); //get list of products in a specific order for a user
 

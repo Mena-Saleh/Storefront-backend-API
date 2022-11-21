@@ -30,7 +30,7 @@ export type OrderEntry = {
 
 //custom type for a custom joint tables query that gets total price of an order depending on prices and quantities of products in it
 export type OrderPrice = {
-    total_price: number;
+    total_price: string;
 }
 
 
@@ -68,7 +68,7 @@ export class OrderStore
             FROM orders INNER JOIN orders_details INNER JOIN products 
             ON  orders_details.product_id = products.id
             ON  orders.id = orders_details.order_id
-            WHERE orders.id = $1 and orders.user_id = $2`; //sql query
+            WHERE orders.id = $1 and orders.user_id = $2`;
             const result : QueryResult<OrderEntry> = await conn.query(sql, [order_id, user_id]);
             conn.release();
             return result.rows;
@@ -138,7 +138,7 @@ export class OrderStore
 
     }
 
-    //delete order by id
+    //delete order by id (user_id is used so that users can delete their own orders only)
     async delete(order_id: string, user_id: string): Promise<Order> 
     { 
         try {
@@ -159,7 +159,7 @@ export class OrderStore
         try
         {
             const conn = await client.connect();
-            const sql = `UPDATE orders SET status = $1 WHERE id = $2 and user_id = $3 and user RETURNING *`
+            const sql = `UPDATE orders SET status = $1 WHERE id = $2 and user_id = $3 RETURNING *`
             const result = await conn.query(sql, [status , order_id, user_id]);
             conn.release();
             return result.rows[0];

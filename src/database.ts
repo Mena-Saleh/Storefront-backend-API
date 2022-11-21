@@ -21,10 +21,10 @@ let client:Pool;
 console.log(ENV)
 
 //configure db connection depending on ENV value
-if(ENV == 'test') {
+if(ENV == 'dev') {
   client = new Pool({
     host: POSTGRES_HOST,
-    database: POSTGRES_TEST_DB,
+    database: POSTGRES_DB,
     user: POSTGRES_USER,
     password: POSTGRES_PASSWORD,
   }
@@ -34,7 +34,7 @@ if(ENV == 'test') {
 else {
   client = new Pool({
     host: POSTGRES_HOST,
-    database: POSTGRES_DB,
+    database: POSTGRES_TEST_DB,
     user: POSTGRES_USER,
     password: POSTGRES_PASSWORD,
   })

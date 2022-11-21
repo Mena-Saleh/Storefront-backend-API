@@ -32,3 +32,5 @@ app.get('/', (0, cors_1.default)(corsOptions), function (req, res) {
 (0, products_1.default)(app);
 (0, users_1.default)(app);
 (0, orders_1.default)(app);
+//Export app for testing:
+exports.default = app;

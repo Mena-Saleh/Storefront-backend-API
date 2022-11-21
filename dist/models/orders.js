@@ -188,7 +188,7 @@ var OrderStore = /** @class */ (function () {
             });
         });
     };
-    //delete order by id
+    //delete order by id (user_id is used so that users can delete their own orders only)
     OrderStore.prototype.delete = function (order_id, user_id) {
         return __awaiter(this, void 0, void 0, function () {
             var conn, sql, result, error_7;
@@ -224,7 +224,7 @@ var OrderStore = /** @class */ (function () {
                         return [4 /*yield*/, database_1.default.connect()];
                     case 1:
                         conn = _a.sent();
-                        sql = "UPDATE orders SET status = $1 WHERE id = $2 and user_id = $3 and user RETURNING *";
+                        sql = "UPDATE orders SET status = $1 WHERE id = $2 and user_id = $3 RETURNING *";
                         return [4 /*yield*/, conn.query(sql, [status, order_id, user_id])];
                     case 2:
                         result = _a.sent();

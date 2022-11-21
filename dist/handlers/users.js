@@ -53,6 +53,7 @@ var index = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 return [4 /*yield*/, store.index()];
             case 1:
                 users = _a.sent();
+                res.status(302); //found
                 res.json(users);
                 return [3 /*break*/, 3];
             case 2:
@@ -77,6 +78,7 @@ var show = function (req, res) { return __awaiter(void 0, void 0, void 0, functi
                 return [4 /*yield*/, store.show(id)];
             case 2:
                 user = _a.sent();
+                res.status(302);
                 res.json(user);
                 return [3 /*break*/, 4];
             case 3:
@@ -140,6 +142,7 @@ var update = function (req, res) { return __awaiter(void 0, void 0, void 0, func
                 return [4 /*yield*/, store.update(id, user)];
             case 2:
                 updatedUser = _a.sent();
+                res.status(200);
                 res.json(updatedUser);
                 return [3 /*break*/, 4];
             case 3:
@@ -164,6 +167,7 @@ var destroy = function (req, res) { return __awaiter(void 0, void 0, void 0, fun
                 return [4 /*yield*/, store.delete(id)];
             case 2:
                 deletedUser = _a.sent();
+                res.status(200);
                 res.json(deletedUser);
                 return [3 /*break*/, 4];
             case 3:

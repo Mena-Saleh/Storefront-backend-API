@@ -10,6 +10,7 @@ const index = async(req:Request, res:Response) : Promise<void> =>{
 
     try {
         const products: Product[] = await store.index();
+        res.status(302);
         res.json(products);
     } catch (error) {
         res.status(400);
@@ -23,6 +24,7 @@ const show = async(req:Request, res:Response) : Promise<void> =>{
     const id: string = req.params.id;
     try {
         const product: Product = await store.show(id);
+        res.status(302);
         res.json(product);
     } catch (error) {
         res.status(400);
@@ -40,6 +42,7 @@ const create = async (req:Request, res:Response) : Promise<void> => {
 
     try {
         const newProduct: Product = await store.create(product);
+        res.status(201);
         res.json(newProduct);
     } catch (error) {
         res.status(400);
@@ -59,6 +62,7 @@ const update = async (req: Request, res: Response) : Promise<void> =>{
 
     try {
         const updatedProduct: Product = await store.update(id, product);
+        res.status(200);
         res.json(updatedProduct);
     } catch (error) {
         res.status(400);
@@ -72,6 +76,7 @@ const destroy = async (req: Request, res: Response) : Promise<void> =>{
 
     try {
         const deletedProduct: Product = await store.delete(id);
+        res.status(200);
         res.json(deletedProduct);
     } catch (error) {
         res.status(400);

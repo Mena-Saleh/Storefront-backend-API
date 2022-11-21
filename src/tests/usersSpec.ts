@@ -1,11 +1,12 @@
-import client from '../database';
-import {UserStore, User} from '../models/users' 
+import supertest from 'supertest';
+import app from '../server';
+import {UserStore, User} from '../models/users'
 
-console.log(client);
+
 const users = new UserStore(); 
+const req = supertest(app);
 
 
-//User model test suite:
 describe('users model testing', () =>
 {
     it('should have an index method', () => {
@@ -103,3 +104,85 @@ describe('users model testing', () =>
  
  
 });
+
+
+
+
+describe('endpoints testing for Users handlers', () => {
+    it('index shows all users if admin requested', async () => {
+        const res = await req.get('/users').set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJtZW5hIHNhbGVoIiwiZW1haWwiOiJtZW5hQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTY2ODk4NTEyNH0.PkaWPn983Fe11xSt0XItQC2Qy0MIaZXR76oeo8yxDrE')
+        expect (res.status).toBe(302);
+    });
+
+    it('index is unauthorized if a normal user uses it', async () => {
+        const res = await req.get('/users').set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJtYXJpYSBhbGxlbiIsImVtYWlsIjoibWFyaWFAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2Njg5ODU0OTB9.W-JFX9ydP4MadvAwSLZYmBT1sXAMpdj734XfmaY_mbo')
+        expect (res.status).toBe(401);
+    });
+
+    it('show returns a user that the admin requests', async () => {
+        const res = await req.get('/users').set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJtZW5hIHNhbGVoIiwiZW1haWwiOiJtZW5hQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTY2ODk4NTEyNH0.PkaWPn983Fe11xSt0XItQC2Qy0MIaZXR76oeo8yxDrE')
+        expect (res.status).toBe(302);
+    });
+
+    it('create creates a user and returns a token', async () => {
+        const res = await req.post('/users').send({
+            firstname: 'joe',
+            lastname: 'doe',
+            email: 'joe@gmail.com',
+            password: '789'
+        })
+        expect(res.status).toBe(201);
+    });
+
+
+    it('update updates authorized user and returns new user in JSON', async () => {
+        const res = await req.patch('/users/1').send({
+            firstname: 'mena',
+            lastname: 'saleh',
+            email: 'mena@gmail.com',
+            password: '123'
+        })
+        .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJtZW5hIHNhbGVoIiwiZW1haWwiOiJtZW5hQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTY2ODk4NTEyNH0.PkaWPn983Fe11xSt0XItQC2Qy0MIaZXR76oeo8yxDrE')
+      
+        expect(res.status).toBe(200);
+    });
+
+
+    it('update requires own user authorization', async () => {
+        const res = await req.patch('/users/1').send({
+            firstname: 'mena',
+            lastname: 'saleh',
+            email: 'mena@gmail.com',
+            password: '123'
+        })
+        .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJtYXJpYSBhbGxlbiIsImVtYWlsIjoibWFyaWFAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2Njg5ODU0OTB9.W-JFX9ydP4MadvAwSLZYmBT1sXAMpdj734XfmaY_mbo')
+        expect(res.status).toBe(401);
+    });
+
+
+    it('delete requires own user authorization', async () => {
+        const res = await req.delete('/users/2')
+        .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJtYXJpYSBhbGxlbiIsImVtYWlsIjoibWFyaWFAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2Njg5ODU0OTB9.W-JFX9ydP4MadvAwSLZYmBT1sXAMpdj734XfmaY_mbo')
+        expect(res.status).toBe(401);
+    });
+
+
+    it('delete deletes own user account', async () => {
+        const res = await req.delete('/users/4')
+        .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJqb2UgZG9lIiwiZW1haWwiOiJqb2VAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2Njg5ODg3MDN9.NzJ3aepigFvOdNEGuF0kT5qnDgZp13_lEAesNFbkprw')
+        expect(res.status).toBe(200);
+    });
+
+
+    it('authenticate logs user in and returns token', async () => {
+        const res = await req.post('/users/authenticate').send({email: 'mena@gmail.com', password: '123'})
+        expect(res.status).toBe(302);
+    });
+
+    it('authenticate returns not found when user enters wrong email or password', async () => {
+        const res = await req.post('/users/authenticate').send({email: 'mena@gmail.com', password: 'IAmAWrongPassword:D'})
+        expect(res.status).toBe(404);
+    });
+    
+});
+

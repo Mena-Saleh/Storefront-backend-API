@@ -1,54 +1,223 @@
-# Storefront Backend Project
+# STOREFRONT BACKEND API
 
-## Getting Started
+## Table of Contents
 
-This repo contains a basic Node and Express app to get you started in constructing an API. To get started, clone this repo and run `yarn` in your terminal at the project root.
+1. Project Description 
+2. Project Pre-Setup
+3. Database design and schema
+3. Usage, Endpoints and Testing
+4. Dependencies And About The Project
+5. Copyrights And Acknowledgements
 
-## Required Technologies
-Your application must make use of the following libraries:
-- Postgres for the database
-- Node/Express for the application logic
-- dotenv from npm for managing environment variables
-- db-migrate from npm for migrations
-- jsonwebtoken from npm for working with JWTs
-- jasmine from npm for testing
+## Project Description 
 
-## Steps to Completion
+This project presents a simple storefront backend API that features users, orders and products and basic functionality on those entities for a storefront.
 
-### 1. Plan to Meet Requirements
+The project features many funtionalities, for instance there is authentication and different types of authorization, passwords are hashed using bcrypt for security. The database history is maintained through a series of migrations, each db entity has model with respective method represnting the database table/entry, every model method is mapped to a RESTful route in the handlers. Finally there are model test cases and endpoints test cases covering the whole project using jasmine and supertest.
 
-In this repo there is a `REQUIREMENTS.md` document which outlines what this API needs to supply for the frontend, as well as the agreed upon data shapes to be passed between front and backend. This is much like a document you might come across in real life when building or extending an API. 
 
-Your first task is to read the requirements and update the document with the following:
-- Determine the RESTful route for each endpoint listed. Add the RESTful route and HTTP verb to the document so that the frontend developer can begin to build their fetch requests.    
-**Example**: A SHOW route: 'blogs/:id' [GET] 
+## Project Pre-Setup
 
-- Design the Postgres database tables based off the data shape requirements. Add to the requirements document the database tables and columns being sure to mark foreign keys.   
-**Example**: You can format this however you like but these types of information should be provided
-Table: Books (id:varchar, title:varchar, author:varchar, published_year:varchar, publisher_id:string[foreign key to publishers table], pages:number)
+- Install required NodeJS packages listed in the package.json file (a list of required packages can also be found in section 4. Dependencies And About The Project)
 
-**NOTE** It is important to remember that there might not be a one to one ratio between data shapes and database tables. Data shapes only outline the structure of objects being passed between frontend and API, the database may need multiple tables to store a single shape. 
+- Create system user in PGAdmin 4 for API usage:
 
-### 2.  DB Creation and Migrations
+    - Open PGAdmin 4.
+    - Navigate to Login/Group Roles.
+    - Create a super user with all priviliges.
+    - The user name should be 'mena_store_admin' with password '123456'
+    - Save the user
 
-Now that you have the structure of the databse outlined, it is time to create the database and migrations. Add the npm packages dotenv and db-migrate that we used in the course and setup your Postgres database. If you get stuck, you can always revisit the database lesson for a reminder. 
 
-You must also ensure that any sensitive information is hashed with bcrypt. If any passwords are found in plain text in your application it will not pass.
+- Initialize database:
 
-### 3. Models
+    - Open PG shell and connect to postgres using the created super user with port 5432.
+    - Create the databases required for this project using the commands:
 
-Create the models for each database table. The methods in each model should map to the endpoints in `REQUIREMENTS.md`. Remember that these models should all have test suites and mocks.
+        create database mena_store;
+        create database mena_store_test;
 
-### 4. Express Handlers
+    - Run migrations using the command: db-migrate up in CMD in the project root directory after installing db-migrate using NPM
+    - The db is initialized with some initial data for testing, tests should be run before modifying any db contents.
 
-Set up the Express handlers to route incoming requests to the correct model method. Make sure that the endpoints you create match up with the enpoints listed in `REQUIREMENTS.md`. Endpoints must have tests and be CORS enabled. 
+- Set up environmental variables
 
-### 5. JWTs
+    - Create a .ENV file in the root directory of the project.
+    - Paste the following environment variables in the file:
 
-Add JWT functionality as shown in the course. Make sure that JWTs are required for the routes listed in `REQUIUREMENTS.md`.
+        POSTGRES_HOST = 127.0.0.1
+        POSTGRES_DB = mena_store
+        POSTGRES_USER = mena_store_admin
+        POSTGRES_PASSWORD = 123456
+        POSTGRES_TEST_DB = mena_store_test
+        ENV = test
+        BCRYPT_PEPPER = DJSADDJ*!*!CMKcjjs76662$@%^!*896986ffva!*2818291
+        SALT_ROUNDS = 10
+        TOKEN_SECRET = 3SDOJ193JKZXC@31OJSD9&*%kdmc87891278JKXCK&^*^*&*^*$&&$*!@@!*!*&%*!*&&NCSNI9898DDS
 
-### 6. QA and `README.md`
 
-Before submitting, make sure that your project is complete with a `README.md`. Your `README.md` must include instructions for setting up and running your project including how you setup, run, and connect to your database. 
+- The API runs on port 3000, for details on usage check section 3. Usage, Endpoints and Testing.
 
-Before submitting your project, spin it up and test each endpoint. If each one responds with data that matches the data shapes from the `REQUIREMENTS.md`, it is ready for submission!
+
+## Database Desgin and Schema
+
+- Users table
+
+                                     Table "public.users"
+  Column   |          Type          | Collation | Nullable |              Default
+-----------+------------------------+-----------+----------+-----------------------------------
+ id        | integer                |           | not null | nextval('users_id_seq'::regclass)
+ email     | character varying(300) |           | not null |
+ firstname | character varying(100) |           | not null |
+ lastname  | character varying(100) |           | not null |
+ password  | character varying(300) |           | not null |
+ role      | user_role              |           | not null |
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "users_email_key" UNIQUE CONSTRAINT, btree (email)
+Referenced by:
+    TABLE "orders" CONSTRAINT "orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+
+
+- Products table
+
+                                    Table "public.products"
+ Column |          Type          | Collation | Nullable |               Default
+--------+------------------------+-----------+----------+--------------------------------------
+ id     | integer                |           | not null | nextval('products_id_seq'::regclass)
+ name   | character varying(100) |           | not null |
+ price  | integer                |           | not null |
+Indexes:
+    "products_pkey" PRIMARY KEY, btree (id)
+Referenced by:
+    TABLE "orders_details" CONSTRAINT "orders_details_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id)
+
+
+- Orders table
+
+                               Table "public.orders"
+ Column  |     Type     | Collation | Nullable |              Default
+---------+--------------+-----------+----------+------------------------------------
+ id      | integer      |           | not null | nextval('orders_id_seq'::regclass)
+ user_id | bigint       |           | not null |
+ status  | order_status |           | not null |
+Indexes:
+    "orders_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+Referenced by:
+    TABLE "orders_details" CONSTRAINT "orders_details_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id)
+
+- Orders_details table
+
+                              Table "public.orders_details"
+   Column   |  Type   | Collation | Nullable |                  Default
+------------+---------+-----------+----------+--------------------------------------------
+ id         | integer |           | not null | nextval('orders_details_id_seq'::regclass)
+ order_id   | bigint  |           | not null |
+ product_id | bigint  |           | not null |
+ quantity   | integer |           | not null |
+Indexes:
+    "orders_details_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "orders_details_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id)
+    "orders_details_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id)
+
+## Usage
+
+- Intro
+
+    - Use the script: NPM run start to run this API.
+    - The port for this API is set to 3000 inittially, to access the home page, go to the route localhost:3000
+
+
+- API Endpoints structure
+- There are three main routes, one for each model (entity)
+
+    - Products
+        - Index:    "/products"             [GET]
+        - Show:     "/products/:id"         [GET]       (params: id)
+        - Create:   "/products"             [POST]      (req_body: name, price)                 -admin token required
+        - delete    "/products/:id"         [DELETE]    (params: id)                            -admin token required
+        - update    "/products/:id"         [PATCH]     (params: id - req_body: name, price)    -admin token required
+
+
+    - Users
+        - Index:    "/users"                [GET]                                               -admin token required
+        - Show:     "/users/:id"            [GET]       (params: id)                            -admin token required
+        - delete    "/users/:id"            [DELETE]    (params: id)                            -owner token required
+        - update    "/users/:id"            [PATCH]     (params: id - req_body: firstname, lastname, email , password) -downer token required
+        - Create    "/users"                [POST]      (req_body: firstname, lastname, email , password)              -returns new user token
+        - Login     "/users/authenticate"   [POST]      (req_body: email, password)                                    -returns user token
+
+
+
+    
+    - Orders
+    - (id passed in params is user_id not order_id, it is often used for authorization in these endpoints)
+
+        - getOrders:   "orders/:id"            [GET]       (params: id, req_body: status)          -owner token required
+        - orderPrice:  "orders/:id/totalPrice" [GET]       (params: id, req_body: order_id)        -owner token required
+        - orderItems:  "orders/:id/products"   [GET]       (params: id, req_body: order_id)        -owner token required
+        - CreateOrder: "orders/:id"            [POST]      (params: id)                            -owner token required
+        - deleteOrder: "orders/:id"            [DELETE]    (params: id, req_body: order_id)        -owner token required
+        - setStatus:   "orders/:id/setstatus"  [PATCH]     (params: id, req_body: order_id, status)                 -owner token required
+        - addProduct:  "orders/:id/addProduct" [POST]      (params: id, req_body: order_id, product_id, quantity)   -owner token required
+
+
+
+- Testing
+
+    - all test cases can be tested using jasmine and supertest by running the simple script: "npm run test"
+    - endpoints and model methods are tested.
+
+## Dependencies And About The Project
+
+This is a list of the dependencies and scripts that were used to power this nodeJS javascript web API.
+
+
+- Scripts included in this project:
+    - "build": "npx tsc",
+    - "jasmine": "jasmine",
+    - "test": "npm run build && npm run jasmine",
+    - "lint": "eslint . --ext .ts",
+    - "prettier": "prettier --config .prettierrc {,!(node_modules)/**/}*.ts --write",
+    - "startjs": "npm run build && nodemon dist/.",
+    - "start": "nodemon src/index.ts"
+
+- To start the project, you can use the "start" script to test the dev version. To test the build version just run the script "startjs"
+- The scripts test, prettier and lint were used throughout the development process to test and maintain code readability and maintainability.
+
+
+- Dependencies and modules used (type definitions were also added):
+    
+    - typeScript
+    - nodemon
+    - superTest and Jasmine
+    - express
+    - prettier
+    - lint
+    - pool
+    - db-migrate
+    - db-migate-pg
+    - cors
+    - dotenv
+    - jsonwebtoken
+    - bcrypt
+    - pg
+
+
+
+## Copyrights And Acknowledgements
+
+    The source code for this project is done entirely by me, without any help of other parties. 
+    This code was written as a submission for the StoreFront backend API project for the 
+    Udacity Advanced full stack developer nanodegree program.
+
+    - About The Author
+        - Name: Mena Ashraf Mikhael Saleh
+        - Email: Mena.a.saleh.2001@gmail.com
+        - GitHub: https://github.com/Mena-Ibrahim
+        - LinkedIn: https://www.linkedin.com/in/mena-saleh-23b947167/
+
+

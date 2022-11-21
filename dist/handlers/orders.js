@@ -53,6 +53,7 @@ var getOrders = function (req, res) { return __awaiter(void 0, void 0, void 0, f
                 return [4 /*yield*/, store.getOrders(user_id, status)];
             case 2:
                 orders = _a.sent();
+                res.status(302);
                 res.json(orders);
                 return [3 /*break*/, 4];
             case 3:
@@ -80,6 +81,7 @@ var create = function (req, res) { return __awaiter(void 0, void 0, void 0, func
                 return [4 /*yield*/, store.create(order)];
             case 2:
                 newOrder = _a.sent();
+                res.status(201);
                 res.json(newOrder);
                 return [3 /*break*/, 4];
             case 3:
@@ -105,6 +107,7 @@ var destroy = function (req, res) { return __awaiter(void 0, void 0, void 0, fun
                 return [4 /*yield*/, store.delete(order_id, user_id)];
             case 2:
                 deletedOrder = _a.sent();
+                res.status(200);
                 res.json(deletedOrder);
                 return [3 /*break*/, 4];
             case 3:
@@ -131,6 +134,7 @@ var setStatus = function (req, res) { return __awaiter(void 0, void 0, void 0, f
                 return [4 /*yield*/, store.setStatus(order_id, user_id, status)];
             case 2:
                 updatedOrder = _a.sent();
+                res.status(200);
                 res.json(updatedOrder);
                 return [3 /*break*/, 4];
             case 3:
@@ -160,6 +164,7 @@ var addProduct = function (req, res) { return __awaiter(void 0, void 0, void 0, 
                 return [4 /*yield*/, store.addProduct(user_id, orderProduct)];
             case 2:
                 addedProduct = _a.sent();
+                res.status(201);
                 res.json(addedProduct);
                 return [3 /*break*/, 4];
             case 3:
@@ -185,6 +190,7 @@ var getOrderTotalPrice = function (req, res) { return __awaiter(void 0, void 0, 
                 return [4 /*yield*/, store.getOrderTotalPrice(order_id, user_id)];
             case 2:
                 orderPrice = _a.sent();
+                res.status(302);
                 res.json(orderPrice);
                 return [3 /*break*/, 4];
             case 3:
@@ -210,6 +216,7 @@ var getOrderProducts = function (req, res) { return __awaiter(void 0, void 0, vo
                 return [4 /*yield*/, store.getOrderProducts(order_id, user_id)];
             case 2:
                 orderProducts = _a.sent();
+                res.status(302);
                 res.json(orderProducts);
                 return [3 /*break*/, 4];
             case 3:
@@ -226,7 +233,7 @@ var orders_routes = function (app) {
     //the id passed through params is user_id not order_id, order_is passed in the body.
     //the user_id is used in the middleware (verifyOwnIDToken) to authorize users to manage their own data only, 
     //user_id is also used in the model queries, so data integrity is maintained.
-    app.get("/orders/:id", Authorization_1.verifyOwnIDToken, getOrders); //get all products for a user
+    app.get("/orders/:id", Authorization_1.verifyOwnIDToken, getOrders); //get all orders for a user
     app.get("/orders/:id/totalPrice", Authorization_1.verifyOwnIDToken, getOrderTotalPrice); //get total price of specific order for a user
     app.get("/orders/:id/products", Authorization_1.verifyOwnIDToken, getOrderProducts); //get list of products in a specific order for a user
     app.post("/orders/:id/addProduct", Authorization_1.verifyOwnIDToken, addProduct); //add a new product in a specific order for a user
